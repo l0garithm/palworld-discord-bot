@@ -1,6 +1,8 @@
 # Example "A Minimal Bot" by discordpy.readthedocs.io
 
 import discord
+from ..src import Secrets
+
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -20,4 +22,4 @@ async def on_message(message):
         await message.channel.send(f'Hello i\'m {client.user}!')
 
 # Old token
-client.run('MTIwNDY0NDQ2NjA5OTc1NzA5OA.Ga-uBE.tdB-Oufmkt5WdaaqihCUu2s0I7ARATRK0Tcx90')
+client.run(Secrets.Secrets._discord_token)
