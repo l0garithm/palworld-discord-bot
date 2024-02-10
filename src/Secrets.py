@@ -1,11 +1,12 @@
 from dotenv import dotenv_values
 import os
 
-class Secrets:
-    secrets = dotenv_values()
-    _discord_token = secrets["DISCORD_TOKEN"]
 
-    @staticmethod
-    def getDiscordToken():
-        print(Secrets.secrets)
-        return Secrets._discord_token
+secrets = dotenv_values()
+DISCORD_TOKEN = secrets["DISCORD_TOKEN"]
+DISCORD_GUILD = secrets["DISCORD_GUILD"]
+DISCORD_GUILD_ID = secrets["DISCORD_GUILD_ID"]
+
+SERVER_HOST = secrets["SERVER_HOST"]
+SERVER_PORT = secrets["SERVER_PORT"]
+SERVER_PW   = secrets["SERVER_PW"]
