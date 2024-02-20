@@ -11,8 +11,9 @@ token = Secrets.DISCORD_TOKEN
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
-# tree = app_commands.CommandTree(client)
-tree = MyCommandTree(client)
+tree = app_commands.CommandTree(client)
+# UNCOMMENT TO USE MyCommandTree
+#tree = MyCommandTree(client)
 required_role: discord.Role
 
 MY_GUILD = discord.Object(id=Secrets.DISCORD_GUILD_ID)
@@ -34,13 +35,13 @@ async def on_guild_join(guild):
 async def on_ready():
     print(f'We have logged in as {client.user}')
 
-    rows = Database.pull_guilds()
+    # rows = Database.pull_guilds()
     # print(f'Rows {rows}')
 
-    for row in rows:
-        # Guilds.ATTACHED_GUILDS[row.pop('guild')] = row
-        print(*row)
-        Guilds.ATTACHED_GUILDS.append(Guild(*row))
+    # for row in rows:
+    #     # Guilds.ATTACHED_GUILDS[row.pop('guild')] = row
+    #     print(*row)
+    #     Guilds.ATTACHED_GUILDS.append(Guild(*row))
     # print(Guilds.ATTACHED_GUILDS[0].g)
 
     # print(f'Guilds: {Guilds.ATTACHED_GUILDS[0].required_role}')
@@ -66,6 +67,7 @@ async def role(interaction: discord.Interaction, role: discord.Role):
 @tree.command(name="add_server")
 async def new_server(interaction: discord.Interaction, ip: str, port: int, pw: str):
     await interaction.response.send_message(content="Adding Server with given params", ephemeral=True)
+    Database.insert_server(ip, port, pw)
 
 
 

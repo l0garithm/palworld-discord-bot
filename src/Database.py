@@ -15,7 +15,9 @@ db = connection.cursor()
 
 # db.row_factory = dict_factory
 
-db.execute("CREATE TABLE IF NOT EXISTS server_info(guild, required_role, players, game_servers)")
+db.execute("CREATE TABLE IF NOT EXISTS servers(id INTEGER PRIMARY KEY AUTOINCREMENT, host, port, password)")
+db.execute("CREATE TABLE IF NOT EXISTS guilds(id INTEGER PRIMARY KEY AUTOINCREMENT, guild_id, name, required_role)")
+db.execute("CREATE TABLE IF NOT EXISTS guildservers(id INTEGER PRIMARY KEY AUTOINCREMENT, guild, server)")
 
 # db.execute("""
 #                INSERT INTO server_info VALUES
@@ -27,6 +29,12 @@ def insert(values):
     db.execute("""
                INSERT INTO server_info VALUES(:guild, :required_role, :players, :game_servers)
                """, values)
+    commit()
+
+def insert_server(ip, port, pw):
+    db.execute("""
+               INSERT INTO servers (host, port, password) VALUES(?, ?, ?)
+               """, (str(ip), str(port), str(pw)))
     commit()
     
 def update(rowId, col, value):
