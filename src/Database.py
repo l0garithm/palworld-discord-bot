@@ -44,9 +44,24 @@ def update(rowId, col, value):
     # print(f'Value: {value}, Guild: {rowId}')
     commit()
 
+def insert_guild(guildId, name, required_role):
+    db.execute("""
+                INSERT INTO guilds (guild_id, name, required_role) VALUES(?,?,?)
+                """, (str(guildId), str(name), str(required_role)))
+    commit()
+    print("Hello")
 
-def pull_guilds():
-    rows = db.execute("SELECT * FROM server_info")
+def update_guild(guild_id, required_role):
+    db.execute("""
+               UPDATE guilds SET required_role = ? WHERE guild_id = ?
+               """, (str(required_role), str(guild_id)))
+    commit()
+    
+def pull_guild(guildID):
+    try:
+        guild = db.execute("SELECT * FROM guilds WHERE guild_id = ?", (guildID))
+    except(LookupError):
+        print(LookupError)
     # rows = db.fetchall()
 
     return rows

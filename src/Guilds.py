@@ -2,6 +2,7 @@ from typing import List
 import discord
 from .GameServers import GameServer
 from .Player import Player
+from . import Database
 
 ATTACHED_GUILDS = []
 # ATTACHED_GUILDS = {}
@@ -23,11 +24,12 @@ def guildToDict(guildId):
     guildDict = {"guild":guild.guild, "required_role":guild.required_role, "players": guild.players, "game_servers": guild.game_servers}
     return guildDict
 
-# def getGuild(guildID):
-#     # for guild in ATTACHED_GUILDS:
-#     #     if guildID == guild.guild:
-#     #         print('succses')
-#     #         return guild
+def getGuild(guildID):
+    # for guild in ATTACHED_GUILDS:
+    #     if guildID == guild.guild:
+    #         print('succses')
+    #         return guild
+    Database.pull_guild(guildID)
 
 class Guild():
     def __init__(self, id, role: str =None, servers=None, players=None):

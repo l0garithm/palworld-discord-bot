@@ -48,17 +48,19 @@ async def on_ready():
     Guilds.checkGuildExists(MY_GUILD.id)
     tree.copy_global_to(guild=MY_GUILD)
     await tree.sync(guild=MY_GUILD)
+    Database.insert_guild('1158872977048342608', 'Home', 'null')
 
 # Role Command allows for setting the role that can use the bot
-@tree.command(name="role")
+@tree.command(name="set_role")
 @app_commands.checks.has_permissions(administrator=True)
 async def role(interaction: discord.Interaction, role: discord.Role):
 
-    guild = Guilds.getGuild(interaction.guild_id)
-    guild.required_role = role
+    # guild = Guilds.getGuild(interaction.guild_id)
+    # guild.required_role = role
 
-    print(f"Setting {role} as the only role that can interact with me in {guild.guild}")
-    Database.update(guild.guild, Database.DB_REQUIRED_ROLE, role)
+    # print(f"Setting {role} as the only role that can interact with me in {guild.guild}")
+    # Database.update(guild.guild, Database.DB_REQUIRED_ROLE, role)
+    Database.update_guild(interaction.guild_id, role)
 
     await interaction.response.send_message(f'Setting {role} as the only role that can interact with me')
     required_role = role
