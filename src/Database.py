@@ -19,7 +19,7 @@ DATABASE_PATH = 'server_info.db'
 def createTables():
     with sqlite3.connect(DATABASE_PATH) as conn:
         db = conn.cursor()
-        db.execute("CREATE TABLE IF NOT EXISTS servers(id INTEGER PRIMARY KEY AUTOINCREMENT, host, port, password, guild)")
+        db.execute("CREATE TABLE IF NOT EXISTS servers(id INTEGER PRIMARY KEY AUTOINCREMENT, name, host, port, password, guild)")
         db.execute("CREATE TABLE IF NOT EXISTS guilds(guild_id PRIMARY KEY, name, required_role)")
         # db.execute("CREATE TABLE IF NOT EXISTS guildservers(id INTEGER PRIMARY KEY AUTOINCREMENT, guild, server)")
         # commit()
@@ -38,12 +38,12 @@ def insert(values):
                 """, values)
         conn.commit()
 
-def insert_server(ip, port, pw, guild):
+def insert_server(name, ip, port, pw, guild):
     with sqlite3.connect(DATABASE_PATH) as conn:
         db = conn.cursor()
         db.execute("""
-                INSERT INTO servers (host, port, password, guild) VALUES(?, ?, ?, ?)
-                """, (str(ip), str(port), str(pw), str(guild)))
+                INSERT INTO servers (name, host, port, password, guild) VALUES(?, ?, ?, ?, ?)
+                """, (str(name), str(ip), str(port), str(pw), str(guild)))
         # db.execute("""
         #         INSERT INTO guildservers (guild, server) VALUES(?,?)
         #            """, (guild, db.lastrowid))
@@ -66,7 +66,7 @@ def get_guild(guildId):
         rows = db.fetchone()
         return rows
 
-def insert_guild(guildId, name, required_role = None):
+def insert_guild(guildId, name, required_role = ''):
     with sqlite3.connect(DATABASE_PATH) as conn:
         db = conn.cursor()
         db.execute("""
@@ -97,7 +97,7 @@ def get_guild_servers(guildID):
     with sqlite3.connect(DATABASE_PATH) as conn:
         db = conn.cursor()
         db.execute("""
-                SELECT host FROM servers WHERE guild = ?
+                SELECT name, host FROM servers WHERE guild = ?
                 """, (str(guildID),))
         rows = db.fetchall()
 

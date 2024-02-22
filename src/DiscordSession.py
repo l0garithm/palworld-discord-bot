@@ -33,48 +33,27 @@ async def on_guild_remove(guild):
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
-
-    # rows = Database.pull_guilds()
-    # print(f'Rows {rows}')
-
-    # for row in rows:
-    #     # Guilds.ATTACHED_GUILDS[row.pop('guild')] = row
-    #     print(*row)
-    #     Guilds.ATTACHED_GUILDS.append(Guild(*row))
-    # print(Guilds.ATTACHED_GUILDS[0].g)
-
-    # print(f'Guilds: {Guilds.ATTACHED_GUILDS[0].required_role}')
     Database.createTables()
-    # Guilds.addGuild(MY_GUILD.id, 'Home')
-    # Guilds.checkGuildExists(MY_GUILD.id)
-    # tree.copy_global_to(guild=MY_GUILD)
+
     await tree.sync()
-    # Database.insert_guild('1158872977048342608', 'Home', 'null')
 
 # Role Command allows for setting the role that can use the bot
 @tree.command(name="set_role")
 @app_commands.checks.has_permissions(administrator=True)
 async def role(interaction: discord.Interaction, role: discord.Role):
-
-    # guild = Guilds.getGuild(interaction.guild_id)
-    # guild.required_role = role
-
-    # print(f"Setting {role} as the only role that can interact with me in {guild.guild}")
-    # Database.update(guild.guild, Database.DB_REQUIRED_ROLE, role)
     Database.update_guild(interaction.guild_id, role)
 
     await interaction.response.send_message(f'Setting {role} as the only role that can interact with me')
     required_role = role
-    # await tree.interaction_check(interaction)
 
+# Add a server to current guild
 @tree.command(name="add_server")
-async def new_server(interaction: discord.Interaction, ip: str, port: int, pw: str):
+async def new_server(interaction: discord.Interaction, name: str, ip: str, port: int, pw: str):
     await interaction.response.send_message(content="Adding Server with given params", ephemeral=True)
-    Database.insert_server(ip, port, pw, interaction.guild_id)
+    Database.insert_server(name, ip, port, pw, interaction.guild_id)
 
 @tree.command(name="list_servers")
 async def get_roles(interaction: discord.Interaction):
     await interaction.response.send_message(content=f'Servers: {Database.get_guild_servers(interaction.guild_id)}')
-
 
 client.run(Secrets.DISCORD_TOKEN)
