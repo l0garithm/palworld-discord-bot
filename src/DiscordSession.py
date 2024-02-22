@@ -11,7 +11,8 @@ token = Secrets.DISCORD_TOKEN
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
-# tree = app_commands.CommandTree(client)
+#tree = app_commands.CommandTree(client)
+# UNCOMMENT TO USE MyCommandTree
 tree = MyCommandTree(client)
 required_role: discord.Role
 
@@ -20,13 +21,12 @@ client_guilds = []
 
 @client.event
 async def on_guild_join(guild):
-    # newGuild = Guild(guild.id)
+    Database.insert_guild(guild.id, guild.name)
+    await tree.sync()
 
-    if Guilds.checkGuildExists(guild.id) != True:
-        Guilds.appendGuilds(guild.id)
-        newGuild = Guilds.guildToDict(guild.id)
-
-        Database.insert(newGuild)
+@client.event
+async def on_guild_remove(guild):
+    Database.delete_guild(guild.id)
 
 
 # ON READY: When Startup Complete
@@ -34,30 +34,34 @@ async def on_guild_join(guild):
 async def on_ready():
     print(f'We have logged in as {client.user}')
 
-    rows = Database.pull_guilds()
+    # rows = Database.pull_guilds()
     # print(f'Rows {rows}')
 
-    for row in rows:
-        # Guilds.ATTACHED_GUILDS[row.pop('guild')] = row
-        print(*row)
-        Guilds.ATTACHED_GUILDS.append(Guild(*row))
+    # for row in rows:
+    #     # Guilds.ATTACHED_GUILDS[row.pop('guild')] = row
+    #     print(*row)
+    #     Guilds.ATTACHED_GUILDS.append(Guild(*row))
     # print(Guilds.ATTACHED_GUILDS[0].g)
 
     # print(f'Guilds: {Guilds.ATTACHED_GUILDS[0].required_role}')
-    Guilds.checkGuildExists(MY_GUILD.id)
-    tree.copy_global_to(guild=MY_GUILD)
-    await tree.sync(guild=MY_GUILD)
+    Database.createTables()
+    # Guilds.addGuild(MY_GUILD.id, 'Home')
+    # Guilds.checkGuildExists(MY_GUILD.id)
+    # tree.copy_global_to(guild=MY_GUILD)
+    await tree.sync()
+    # Database.insert_guild('1158872977048342608', 'Home', 'null')
 
 # Role Command allows for setting the role that can use the bot
-@tree.command(name="role")
+@tree.command(name="set_role")
 @app_commands.checks.has_permissions(administrator=True)
 async def role(interaction: discord.Interaction, role: discord.Role):
 
-    guild = Guilds.getGuild(interaction.guild_id)
-    guild.required_role = role
+    # guild = Guilds.getGuild(interaction.guild_id)
+    # guild.required_role = role
 
-    print(f"Setting {role} as the only role that can interact with me in {guild.guild}")
-    Database.update(guild.guild, Database.DB_REQUIRED_ROLE, role)
+    # print(f"Setting {role} as the only role that can interact with me in {guild.guild}")
+    # Database.update(guild.guild, Database.DB_REQUIRED_ROLE, role)
+    Database.update_guild(interaction.guild_id, role)
 
     await interaction.response.send_message(f'Setting {role} as the only role that can interact with me')
     required_role = role
@@ -66,8 +70,11 @@ async def role(interaction: discord.Interaction, role: discord.Role):
 @tree.command(name="add_server")
 async def new_server(interaction: discord.Interaction, ip: str, port: int, pw: str):
     await interaction.response.send_message(content="Adding Server with given params", ephemeral=True)
+    Database.insert_server(ip, port, pw, interaction.guild_id)
 
-
+@tree.command(name="list_servers")
+async def get_roles(interaction: discord.Interaction):
+    await interaction.response.send_message(content=f'Servers: {Database.get_guild_servers(interaction.guild_id)}')
 
 
 client.run(Secrets.DISCORD_TOKEN)
