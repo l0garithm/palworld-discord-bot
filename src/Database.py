@@ -57,7 +57,16 @@ def update(rowId, col, value):
                 """ % (col), (str(value), rowId))
         # print(f'Value: {value}, Guild: {rowId}')
 
-def insert_guild(guildId, name, required_role = ''):
+def get_guild(guildId):
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        db = conn.cursor()
+        rows = db.execute("""
+                    SELECT guild_id FROM guilds WHERE guild_id = ?
+                    """, (str(guildId),))
+        rows = db.fetchone()
+        return rows
+
+def insert_guild(guildId, name, required_role = None):
     with sqlite3.connect(DATABASE_PATH) as conn:
         db = conn.cursor()
         db.execute("""
@@ -71,6 +80,17 @@ def update_guild(guild_id, required_role):
         db.execute("""
                 UPDATE guilds SET required_role = ? WHERE guild_id = ?
                 """, (str(required_role), str(guild_id)))
+        conn.commit()
+
+def delete_guild(guild_id):
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        db = conn.cursor()
+        db.execute("""
+                DELETE FROM guilds WHERE guild_id = ?
+                """, (str(guild_id),))
+        db.execute("""
+                   DELETE FROM servers WHERE guild = ?
+                   """, (str(guild_id),))
         conn.commit()
 
 def get_guild_servers(guildID):
@@ -87,7 +107,11 @@ def pull_guild(guildID):
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
             db = conn.cursor()
-            guild = db.execute("SELECT * FROM guilds WHERE guild_id = ?", (guildID))
+            db.execute("SELECT * FROM guilds WHERE guild_id = ?", (str(guildID),))
+            guild = db.fetchone()
+
+            return guild
+            
     except sqlite3.Error as err:
         print(err)
     # rows = db.fetchall()

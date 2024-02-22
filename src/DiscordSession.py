@@ -11,9 +11,9 @@ token = Secrets.DISCORD_TOKEN
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents)
-tree = app_commands.CommandTree(client)
+#tree = app_commands.CommandTree(client)
 # UNCOMMENT TO USE MyCommandTree
-#tree = MyCommandTree(client)
+tree = MyCommandTree(client)
 required_role: discord.Role
 
 MY_GUILD = discord.Object(id=Secrets.DISCORD_GUILD_ID)
@@ -21,14 +21,12 @@ client_guilds = []
 
 @client.event
 async def on_guild_join(guild):
-    # newGuild = Guild(guild.id)
+    Database.insert_guild(guild.id, guild.name)
+    await tree.sync()
 
-    # if Guilds.checkGuildExists(guild.id) != True:
-    #     Guilds.appendGuilds(guild.id)
-    #     newGuild = Guilds.guildToDict(guild.id)
-
-    #     Database.insert(newGuild)
-    Guilds.addGuild(guild.id, guild.name)
+@client.event
+async def on_guild_remove(guild):
+    Database.delete_guild(guild.id)
 
 
 # ON READY: When Startup Complete
@@ -48,9 +46,9 @@ async def on_ready():
     # print(f'Guilds: {Guilds.ATTACHED_GUILDS[0].required_role}')
     Database.createTables()
     # Guilds.addGuild(MY_GUILD.id, 'Home')
-    Guilds.checkGuildExists(MY_GUILD.id)
+    # Guilds.checkGuildExists(MY_GUILD.id)
     # tree.copy_global_to(guild=MY_GUILD)
-    # await tree.sync(guild=MY_GUILD)
+    await tree.sync()
     # Database.insert_guild('1158872977048342608', 'Home', 'null')
 
 # Role Command allows for setting the role that can use the bot
