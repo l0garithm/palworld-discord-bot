@@ -23,11 +23,12 @@ client_guilds = []
 async def on_guild_join(guild):
     # newGuild = Guild(guild.id)
 
-    if Guilds.checkGuildExists(guild.id) != True:
-        Guilds.appendGuilds(guild.id)
-        newGuild = Guilds.guildToDict(guild.id)
+    # if Guilds.checkGuildExists(guild.id) != True:
+    #     Guilds.appendGuilds(guild.id)
+    #     newGuild = Guilds.guildToDict(guild.id)
 
-        Database.insert(newGuild)
+    #     Database.insert(newGuild)
+    Guilds.addGuild(guild.id, guild.name)
 
 
 # ON READY: When Startup Complete
@@ -45,10 +46,12 @@ async def on_ready():
     # print(Guilds.ATTACHED_GUILDS[0].g)
 
     # print(f'Guilds: {Guilds.ATTACHED_GUILDS[0].required_role}')
+    Database.createTables()
+    # Guilds.addGuild(MY_GUILD.id, 'Home')
     Guilds.checkGuildExists(MY_GUILD.id)
-    tree.copy_global_to(guild=MY_GUILD)
-    await tree.sync(guild=MY_GUILD)
-    Database.insert_guild('1158872977048342608', 'Home', 'null')
+    # tree.copy_global_to(guild=MY_GUILD)
+    # await tree.sync(guild=MY_GUILD)
+    # Database.insert_guild('1158872977048342608', 'Home', 'null')
 
 # Role Command allows for setting the role that can use the bot
 @tree.command(name="set_role")
@@ -69,9 +72,11 @@ async def role(interaction: discord.Interaction, role: discord.Role):
 @tree.command(name="add_server")
 async def new_server(interaction: discord.Interaction, ip: str, port: int, pw: str):
     await interaction.response.send_message(content="Adding Server with given params", ephemeral=True)
-    Database.insert_server(ip, port, pw)
+    Database.insert_server(ip, port, pw, interaction.guild_id)
 
-
+@tree.command(name="list_servers")
+async def get_roles(interaction: discord.Interaction):
+    await interaction.response.send_message(content=f'Servers: {Database.get_guild_servers(interaction.guild_id)}')
 
 
 client.run(Secrets.DISCORD_TOKEN)

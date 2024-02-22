@@ -24,6 +24,9 @@ def guildToDict(guildId):
     guildDict = {"guild":guild.guild, "required_role":guild.required_role, "players": guild.players, "game_servers": guild.game_servers}
     return guildDict
 
+def addGuild(guildID, name):
+    Database.insert_guild(guildID, name)
+
 def getGuild(guildID):
     # for guild in ATTACHED_GUILDS:
     #     if guildID == guild.guild:
