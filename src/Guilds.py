@@ -17,8 +17,8 @@ def checkGuildExists(checkGuild):
 def getGuild(guildID):
     row = Database.pull_guild(guildID)
     guild = Guild(*row)
+
     return guild
-    print(guild)
 
 def deleteGuild(guildID):
     Database.delete_guild(guildID)

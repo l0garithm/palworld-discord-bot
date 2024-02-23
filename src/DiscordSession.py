@@ -1,3 +1,4 @@
+from typing import List
 import discord
 from discord import app_commands
 from ..src import Secrets
@@ -34,8 +35,9 @@ async def on_guild_remove(guild):
 async def on_ready():
     print(f'We have logged in as {client.user}')
     Database.createTables()
-
-    await tree.sync()
+    tree.copy_global_to(guild=MY_GUILD)
+    await tree.sync(guild=MY_GUILD)
+    #await tree.sync()
 
 # Role Command allows for setting the role that can use the bot
 @tree.command(name="set_role")
@@ -53,7 +55,42 @@ async def new_server(interaction: discord.Interaction, name: str, ip: str, port:
     Database.insert_server(name, ip, port, pw, interaction.guild_id)
 
 @tree.command(name="list_servers")
-async def get_roles(interaction: discord.Interaction):
+async def list_servers(interaction: discord.Interaction):
     await interaction.response.send_message(content=f'Servers: {Database.get_guild_servers(interaction.guild_id)}')
 
+async def server_autocomplete(
+        interaction: discord.Interaction, 
+        current: str,
+        ) -> List[app_commands.Choice[str]]:
+        servers = Database.get_guild_server_names(interaction.guild_id)
+        # print(servers)
+        return [
+             app_commands.Choice(name=server[0], value=server[0])
+             for server in servers #if current.lower() in server.lower
+        ]
+
+@tree.command(name="show_players")
+@app_commands.autocomplete(servers=server_autocomplete)
+async def show_players(interaction: discord.Interaction, servers: str):
+    server = GameServer(*Database.get_server(interaction.guild_id, servers))
+
+    await interaction.response.send_message(content=f'Server Players: {server.showPlayers()}')
+
+@tree.command(name="broadcast")
+@app_commands.autocomplete(server=server_autocomplete)
+async def broadcast(interaction: discord.Interaction, server: str, message: str):
+    broadcast_server = GameServer(*Database.get_server(interaction.guild_id, server))
+    broadcast_server.broadcast(message)
+    await interaction.response.send_message(content=f'Broadcasted: {message}')
+    print("Broadcasted")
+
+@tree.command(name="emergency_broadcast")
+@app_commands.autocomplete(server=server_autocomplete)
+async def emergency_broadcast(interaction: discord.Interaction, server: str, message: str):
+    broadcast_server = GameServer(*Database.get_server(interaction.guild_id, server))
+    await interaction.response.defer(thinking=False)
+    await broadcast_server.emergency_broadcast(message)
+    await interaction.followup.send(content=f'Emergency Broadcasted: {message}')
+    print("Broadcasted") 
+    
 client.run(Secrets.DISCORD_TOKEN)

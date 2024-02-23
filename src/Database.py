@@ -102,6 +102,26 @@ def get_guild_servers(guildID):
         rows = db.fetchall()
 
         return rows
+    
+def get_server(guildID, name):
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        db = conn.cursor()
+        db.execute("""
+                SELECT name, host, port, password, guild FROM servers WHERE guild = ? AND name = ?
+                """, (str(guildID), str(name)))
+        server = db.fetchone()
+        # print(guildID)
+        # print(name)
+        return server
+    
+def get_guild_server_names(guildID):
+    with sqlite3.connect(DATABASE_PATH) as conn:
+        db = conn.cursor()
+        db.execute("""
+                    SELECT name FROM servers WHERE guild = ?
+                   """, (str(guildID),))
+        rows = db.fetchall()
+        return rows
 
 def pull_guild(guildID):
     try:
