@@ -19,7 +19,7 @@ DATABASE_PATH = 'server_info.db'
 def createTables():
     with sqlite3.connect(DATABASE_PATH) as conn:
         db = conn.cursor()
-        db.execute("CREATE TABLE IF NOT EXISTS servers(id INTEGER PRIMARY KEY AUTOINCREMENT, name, host, port, password, guild)")
+        db.execute("CREATE TABLE IF NOT EXISTS servers(id INTEGER PRIMARY KEY AUTOINCREMENT, name, host, port, password, guild, ssh_user, ssh_pass)")
         db.execute("CREATE TABLE IF NOT EXISTS guilds(guild_id PRIMARY KEY, name, required_role)")
         # db.execute("CREATE TABLE IF NOT EXISTS guildservers(id INTEGER PRIMARY KEY AUTOINCREMENT, guild, server)")
         # commit()
@@ -38,12 +38,12 @@ def insert(values):
                 """, values)
         conn.commit()
 
-def insert_server(name, ip, port, pw, guild):
+def insert_server(name, ip, port, pw, guild, ssh_user, ssh_pass):
     with sqlite3.connect(DATABASE_PATH) as conn:
         db = conn.cursor()
         db.execute("""
-                INSERT INTO servers (name, host, port, password, guild) VALUES(?, ?, ?, ?, ?)
-                """, (str(name), str(ip), str(port), str(pw), str(guild)))
+                INSERT INTO servers (name, host, port, password, guild, ssh_user, ssh_pass) VALUES(?, ?, ?, ?, ?, ?, ?)
+                """, (str(name), str(ip), str(port), str(pw), str(guild), str(ssh_user), str(ssh_pass)))
         # db.execute("""
         #         INSERT INTO guildservers (guild, server) VALUES(?,?)
         #            """, (guild, db.lastrowid))

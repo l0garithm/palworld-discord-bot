@@ -50,9 +50,9 @@ async def role(interaction: discord.Interaction, role: discord.Role):
 
 # Add a server to current guild
 @tree.command(name="add_server")
-async def new_server(interaction: discord.Interaction, name: str, ip: str, port: int, pw: str):
+async def new_server(interaction: discord.Interaction, name: str, ip: str, port: int, pw: str, ssh_user: str, ssh_pass: str):
     await interaction.response.send_message(content="Adding Server with given params", ephemeral=True)
-    Database.insert_server(name, ip, port, pw, interaction.guild_id)
+    Database.insert_server(name, ip, port, pw, interaction.guild_id, ssh_user, ssh_pass)
 
 @tree.command(name="list_servers")
 async def list_servers(interaction: discord.Interaction):
@@ -92,5 +92,14 @@ async def emergency_broadcast(interaction: discord.Interaction, server: str, mes
     await broadcast_server.emergency_broadcast(message)
     await interaction.followup.send(content=f'Emergency Broadcasted: {message}')
     print("Broadcasted") 
+
+@tree.command(name="reboot_server")
+@app_commands.autocomplete(server=server_autocomplete)
+async def reboot_server(interaction: discord.Interaction, server: str):
+    shutdownServer = GameServer(*Database.get_server(interaction.guild_id, server))
+    await interaction.followup.send(content=f'Notifying Server Shutdown...')
+    await shutdownServer.shutdown()
+    await interaction.response.send(content=f'Reboot Successfully Triggered')
+    print("Reboot")
     
 client.run(Secrets.DISCORD_TOKEN)
