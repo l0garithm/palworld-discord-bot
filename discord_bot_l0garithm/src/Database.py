@@ -107,7 +107,7 @@ def get_server(guildID, name):
     with sqlite3.connect(DATABASE_PATH) as conn:
         db = conn.cursor()
         db.execute("""
-                SELECT name, host, port, password, guild FROM servers WHERE guild = ? AND name = ?
+                SELECT name, host, port, password, guild, ssh_user, ssh_pass FROM servers WHERE guild = ? AND name = ?
                 """, (str(guildID), str(name)))
         server = db.fetchone()
         # print(guildID)

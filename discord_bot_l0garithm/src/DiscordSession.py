@@ -97,9 +97,8 @@ async def emergency_broadcast(interaction: discord.Interaction, server: str, mes
 @app_commands.autocomplete(server=server_autocomplete)
 async def reboot_server(interaction: discord.Interaction, server: str):
     shutdownServer = GameServer(*Database.get_server(interaction.guild_id, server))
-    await interaction.followup.send(content=f'Notifying Server Shutdown...')
-    await shutdownServer.shutdown()
-    await interaction.response.send(content=f'Reboot Successfully Triggered')
-    print("Reboot")
+    await interaction.response.send_message(content=f'Notifying Server Shutdown...')
+    await shutdownServer.reboot()
+    # await interaction.response.send(content=f'Reboot Successfully Triggered')
     
 client.run(Secrets.DISCORD_TOKEN)
